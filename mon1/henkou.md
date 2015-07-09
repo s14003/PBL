@@ -74,8 +74,8 @@
 |1|setNextstatus|次に遷移する状態及びコマンドの文字列の設定| |
 |2|getNextStatus|次に遷移する状態の取得| |
 |3|displayFirstMess|最初に出力するメッセージの表示| |
-|4|displayPrompMess|次の状態に遷移することを促すためのメッセージ<br />
-の表示| |
+|4|displayPrompMess|次の状態に遷移することを促すためのメッセージ| |
+| |                |の表示| |
 |5|displayFirstMess|操作者からのキー入力受付| |
 
 ## 7.ファイル
