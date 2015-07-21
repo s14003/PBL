@@ -11,6 +11,8 @@ public class DisplayPersonsByTypeStatus extends ConsoleStatus {
     private PersonList selectedList;
     private DisplayPersonStatus next;
     private int next_disp_id;
+    private int start_id;
+    private int listsize;
     /**
      * コンストラクタ DisplayPersonsByTypeStatus
      * @param String firstMess
@@ -53,10 +55,13 @@ public class DisplayPersonsByTypeStatus extends ConsoleStatus {
     public void displayList(String code) {
         // 入力された職種をもつ従業員のレコードだけを
         // selectedListに取り出す
-        selectedList = plist.searchByTypes( work );
+        if (next_disp_id == 0) {
+            selectedList = plist.searchByTypes( work );
+            listsize = selectedList.size();
+        }
         // selectedListの件数＝0ならば当該職種をもつ
         // 従業員はいないと表示
-        if( selectedList.size() <= 0 )
+        if( listsize <= 0 )
             System.out.println( "従業員が存在しません。" );
         else {
             if(code.equals(" ") && next_disp_id == 0){
@@ -82,6 +87,31 @@ public class DisplayPersonsByTypeStatus extends ConsoleStatus {
                     }
                     next_disp_id = rows;
                 }
+            } else if (code.equals("P")) {
+                System.out.println("next_start_id: "+ next_disp_id);
+                System.out.println("start_id:" + start_id);
+                if (start_id >= 3) {
+                    System.out.println("前のページを表示");
+                    if (next_disp_id >= 6) {
+                        next_disp_id = start_id -3;
+                    } else {
+                        next_disp_id = 0;
+                    }
+                    for(int i = next_disp_id; i < next_disp_id + 3; i++) {
+                        System.out.println(selectedList.getRecord(i).toString());
+                    }
+                    start_id = next_disp_id;
+                    next_disp_id += 3;
+                } else {
+                    System.out.println ("末尾の3件を表示");
+                    next_disp_id =
+                        listsize > 3 ? listsize - 3 : 0;
+                    for (int i = next_disp_id;i < listsize; i++) {
+                        System.out.println(selectedList.getRecord(i).toString());
+                    }
+                    start_id = next_disp_id;
+                    next_disp_id = listsize;
+                }
             }
         }
     }
@@ -96,6 +126,8 @@ public ConsoleStatus getNextStatus( String s ) {
         displayList(s);
         return this;
     } else {
+        start_id = 0;
+        next_disp_id = 0;
     // 数値が入力された場合，その数値と同じIDをもつ
     // レコードがselectedListにあるかどうか判定し，
     // あればそれを次の状態DisplayPersonStatusに渡す

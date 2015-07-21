@@ -10,7 +10,9 @@ public class DisplayPersonsByNameStatus extends ConsoleStatus {
     private PersonList plist;
     private PersonList selectedList;
     private DisplayPersonStatus next;
-    private int next_disp_id;
+    private int next_disp_id = 0;
+    private int start_id;
+    private int listsize;
 
     /**
      * コンストラクタ DisplayPersonsByNameStatus
@@ -55,10 +57,13 @@ public class DisplayPersonsByNameStatus extends ConsoleStatus {
     public void displayList(String code) {
         // 入力された氏名に一致または氏名を含む従業員のレコードだけを
         // selectedListに取り出す
-        selectedList = plist.searchByName( name );
+        if (next_disp_id == 0) {
+            selectedList = plist.searchByName( name );
+            listsize = selectedList.size();
+        }
         // selectedListの件数＝0ならば当該職種をもつ
         // 従業員はいないと表示
-        if( selectedList.size() <= 0 )
+        if( listsize <= 0 )
             System.out.println( "従業員が存在しません。" );
         else {
             if (code.equals(" ") && next_disp_id == 0) {
@@ -85,25 +90,33 @@ public class DisplayPersonsByNameStatus extends ConsoleStatus {
                     next_disp_id = rows;
                 }
             } else if(code.equals("P")) {
-                System.out.println("現在のnext_disp_id: "  + next_disp_id);
-                if (next_disp_id - 6 >= 0) {
+                System.out.println("現在のnext_start_id: "  + next_disp_id);
+                System.out.println("start_id:" + start_id);
+                if(start_id >= 3) {
                     System.out.println("前のページを表示");
-                    next_disp_id -= 6;
+                    if (next_disp_id >= 6) {
+                        next_disp_id = start_id - 3;
+                    } else {
+                        next_disp_id = 0;
+                    }
                     for (int i = next_disp_id; i < next_disp_id + 3; i++) {
                         System.out.println(selectedList.getRecord(i).toString());
                     }
+                    start_id = next_disp_id;
+                    next_disp_id += 3;
                 } else {
                     System.out.println("末尾の3件を表示");
-                    int rows = selectedList.size() >= 3 ? 3 : selectedList.size();
-                    for (int i = selectedList.size() - rows; i < selectedList.size();i++) {
+                    next_disp_id =
+                        listsize >= 3 ? listsize - 3 : 0;
+                    for (int i = next_disp_id; i < listsize; i++) {
                         System.out.println(selectedList.getRecord(i).toString());
                     }
-                        next_disp_id = selectedList.size();
-                    }
+                    start_id = next_disp_id;
+                    next_disp_id = listsize;
                 }
             }
         }
-
+    }
         // 次の状態に遷移することを促すためのメッセージの表示
         /** getNextStatus
          * @param String s
@@ -114,6 +127,8 @@ public class DisplayPersonsByNameStatus extends ConsoleStatus {
                 displayList(s);
                 return this;
             } else {
+                start_id = 0;
+                next_disp_id = 0;
 
                 // 数値が入力された場合，その数値と同じIDをもつ
                 // レコードがselectedListにあるかどうか判定し，
